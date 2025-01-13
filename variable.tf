@@ -1,76 +1,104 @@
-####################################################################################################
-#   variables.tf                                                                                   #
-####################################################################################################
+###################################################################################################
+#   variables.tf                                                                                  #
+###################################################################################################
 
 variable "zone" {
-  description = <<-EOF
-    'var.zone' is the main variable for azurerm_dns zone resource attributes
-  EOF
-  type = object({
-    name                = string
-    resource_group_name = string
-    tags                = optional(map(string))
-    soa_record          = optional(object({
-      enabled             = optional(bool, true)
-      email               = optional(string, "azuredns-hostmaster.microsoft.com")
-      host_name           = optional(string, null)
-      expire_time         = optional(number, 2419200)
-      minimum_ttl         = optional(number, 300)
-      refresh_time        = optional(number, 3600)
-      retry_time          = optional(number, 300)
-      serial_number       = optional(number, 1)
-      ttl                 = optional(number, 3600)
-      tags                = optional(map(string))
-    }), { enabled = false })
+  description = "DNS zone's settings: name in FQDN format, resource group name & (optional) tags as mappings"
+  type        = object({
+    name                  = string
+    resource_group_name   = string
+    tags                  = optional(map(string), null)
   })
+  nullable    = false
 }
 
-variable "recordset" {
-  description = <<-EOF
-    'var.recordset' is the main variable for azurerm_dns recordset resource attributes and 
-    can contain all types of recordsets that can be managed via Terraform.
-  EOF
-  type        = object({
-    a           = optional(map(object({
-      name        = string
-      records     = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-    aaaa        = optional(map(object({
-      name        = string
-      records     = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-    caa         = optional(map(object({
-      name        = string
-      record      = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-    cname       = optional(map(object({
-      name        = string
-      record      = string
-      ttl         = optional(number, 3600)
-    })), {})
-    mx          = optional(map(object({
-      name        = string
-      record      = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-    ns          = optional(map(object({
-      name        = string
-      records     = list(string)
-      ttl         = optional(number, 172800)
-    })), {})
-    srv         = optional(map(object({
-      name        = string
-      record      = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-    txt         = optional(map(object({
-      name        = string
-      record      = list(string)
-      ttl         = optional(number, 3600)
-    })), {})
-  })
+variable "recordset_a" {
+  description = "DNS zone's record set resources of record type 'A'"
+  type         = map(object({
+    name                = string
+    records             = list(string)
+    target_resource_id  = optional(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_aaaa" {
+  description = "DNS zone's record set resources of record type 'AAAA'"
+  type        = map(object({
+    name                = string
+    records             = list(string)
+    target_resource_id  = optional(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_caa" {
+  description = "DNS zone's record set resources of record type 'CAA'"
+  type        = map(object({
+    name                = string
+    record              = list(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_cname" {
+  description = "DNS zone's record set resources of record type 'CNAME'"
+  type        = map(object({
+    name                = string
+    record              = string
+    target_resource_id  = optional(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_mx" {
+  description = "DNS zone's record set resources of record type 'MX'"
+  type        = map(object({
+    name                = string
+    record              = list(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_ns" {
+  description = "DNS zone's record set resources of record type 'NS'"
+  type        = map(object({
+    name                = string
+    records             = list(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 172800)
+  }))
+  default     = {}
+}
+
+variable "recordset_srv" {
+  description = "DNS zone's record set resources of record type 'SRV'"
+  type        = map(object({
+    name                = string
+    record              = list(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
+  default     = {}
+}
+
+variable "recordset_txt" {
+  description = "DNS zone's record set resources of record type 'TXT'"
+  type        = map(object({
+    name                = string
+    record              = list(string)
+    tags                = optional(map(string), null)
+    ttl                 = optional(number, 3600)
+  }))
   default     = {}
 }

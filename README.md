@@ -2,7 +2,7 @@
 
 ### Description
 
-This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards. The module only manages forward lookup zones. Reverse lookup zones are currently not in scope of this module.  
+This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards. The module only manages forward lookup zones. Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
 
 #### Tasks & ToDos
 
@@ -40,9 +40,16 @@ This module is intended to create public DNS zones and resource record sets in A
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for azurerm_dns zone resource attributes | <pre>type = object({<br>  name                = string<br>  resource_group_name = string<br>  soa_record          = object({<br>    enabled             = optional(bool, true)<br>    email               = optional(string, "azuredns-hostmaster.microsoft.com")<br>    expire_time         = optional(number, 2419200)<br>    minimum_ttl         = optional(number, 300)<br>    refresh_time        = optional(number, 3600)<br>    retry_time          = optional(number, 300)<br>    serial_number       = optional(number, 1)<br>    ttl                 = optional(number, 3600)<br>    tags                = optional(map(string))<br>  }, { enabled   = false })<br>  tags                = optional(map(string))<br>})<br></pre> | none | yes |
-| <a name="input_recordset"></a> [recordset](#input\_recordset) | 'var.recordset' is the main variable for azurerm_dns recordset resource attributes and can contain all types of recordsets that can be managed via Terraform | <pre>type        = object({<br>  a           = optional(map(object({<br>    name        = string<br>    records     = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  aaaa        = optional(map(object({<br>    name        = string<br>    records     = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  caa         = optional(map(object({<br>    name        = string<br>    record      = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  cname       = optional(map(object({<br>    name        = string<br>    record      = string<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  mx          = optional(map(object({<br>    name        = string<br>    record      = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  ns          = optional(map(object({<br>    name        = string<br>    records     = list(string)<br>    ttl         = optional(number, 172800)<br>  })), {})<br>  srv         = optional(map(object({<br>    name        = string<br>    record      = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>  txt         = optional(map(object({<br>    name        = string<br>    record      = list(string)<br>    ttl         = optional(number, 3600)<br>  })), {})<br>})<br></pre> | {} | no |
-  
+| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for DNS zone's resource attributes | <pre>type        = object({<br>  name                  = string<br>  resource_group_name   = string<br>  tags                  = optional(map(string), null)<br>})<br></pre> | none | yes |
+| <a name="input_recordset_a"></a> [recordset_a](#input\_recordset\_a) | 'var.recordset_a' is the main variable for DNS zone's record set resources of record type 'A' | <pre>type         = map(object({<br>  name                = string<br>  records             = list(string)<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_aaaa"></a> [recordset_aaaa](#input\_recordset\_aaaa) | 'var.recordset_aaaa' is the main variable for DNS zone's record set resources of record type 'AAAA' | <pre>type        = map(object({<br>  name                = string<br>  records             = list(string)<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_caa"></a> [recordset_caa](#input\_recordset\_caa) | 'var.recordset_caa' is the main variable for DNS zone's record set resources of record type 'CAA' | <pre>type        = map(object({<br>  name                = string<br>  record              = list(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_cname"></a> [recordset_cname](#input\_recordset\_cname) | 'var.recordset_cname' is the main variable for DNS zone's record set resources of record type 'CNAME' | <pre>type        = map(object({<br>  name                = string<br>  record              = string<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_mx"></a> [recordset_mx](#input\_recordset\_mx) | 'var.recordset_mx' is the main variable for DNS zone's record set resources of record type 'MX' | <pre>type        = map(object({<br>  name                = string<br>  record              = list(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_ns"></a> [recordset_ns](#input\_recordset\_ns) | 'var.recordset_ns' is the main variable for DNS zone's record set resources of record type 'NS' | <pre>type        = map(object({<br>  name                = string<br>  records             = list(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 172800)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_srv"></a> [recordset_srv](#input\_recordset\_srv) | 'var.recordset_srv' is the main variable for DNS zone's record set resources of record type 'SRV' | <pre>type        = map(object({<br>  name                = string<br>  record              = list(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+| <a name="input_recordset_txt"></a> [recordset_txt](#input\_recordset\_txt) | 'var.recordset_txt' is the main variable for DNS zone's record set resources of record type 'TXT' | <pre>type        = map(object({<br>  name                = string<br>  record              = list(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | {} | no |
+ 
 <details>
 <summary><b>Using the variables in the root module</b></summary>
 
@@ -52,15 +59,29 @@ The following lines explain how the main variable in the root module has to be d
 ```
 variable "azurerm_dns" {
   type  = map(object({
-    zone      = any
-    recordset = optional(any, {})
+    zone            = any
+    recordset_a     = optional(any, {})
+    recordset_aaaa  = optional(any, {})
+    recordset_caa   = optional(any, {})
+    recordset_cname = optional(any, {})
+    recordset_mx    = optional(any, {})
+    recordset_ns    = optional(any, {})
+    recordset_srv   = optional(any, {})
+    recordset_txt   = optional(any, {})
   }))
 }
 module "azurerm_dns" {
-  source                = "github.com/uplink-systems/Terraform-Modules//modules/azurerm/dns"
-  for_each              = var.azurerm_dns
-  zone                  = each.value.zone
-  recordset             = each.value.recordset
+  source            = "github.com/uplink-systems/terraform-module-azurerm-dns"
+  for_each          = var.azurerm_dns
+  zone              = each.value.zone
+  recordset_a       = each.value.recordset_a
+  recordset_aaaa    = each.value.recordset_aaaa
+  recordset_caa     = each.value.recordset_caa
+  recordset_cname   = each.value.recordset_cname
+  recordset_mx      = each.value.recordset_mx
+  recordset_ns      = each.value.recordset_ns
+  recordset_srv     = each.value.recordset_srv
+  recordset_txt     = each.value.recordset_txt
 }
 ```
 </details>
@@ -112,13 +133,4 @@ output "azurerm_dns_zone_id_group_1" {
   value = module.azurerm_dns["<i>&lt;Terraform-Resource-Name&gt;</i>"].azurerm_dns_zone_id
 }
 ```
-</details>
-
-### Known Issues
-
-<details>
-<summary><b>n/a</b></summary>
-
-######
-  
 </details>
