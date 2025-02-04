@@ -88,6 +88,6 @@ output "azurerm_dns_txt_record" {
 
 output "azurerm_management_lock" {
   description = "output of all exported management lock attribute values"
-  value       = azurerm_management_lock.management_lock
-  depends_on  = [ azurerm_management_lock.management_lock ]
+  value       = azurerm_management_lock.lock
+  depends_on  = [ azurerm_management_lock.lock ]
 }
