@@ -43,6 +43,10 @@ azurerm_dns = {
       name                   = "example.net"
       resource_group_name    = "rg-example"
       tags                   = { "Environment"="Production","Scope"="Public" }
+      management_lock        = {
+        name                   = "Zone-Lock"
+        notes                  = "Resource deletion in this DNS zone is not allowed for security reasons"
+      }
     }
     recordset_a     = {
       "@"                      = { name = "@", records = ["18.128.74.45"], ttl = "3600" },

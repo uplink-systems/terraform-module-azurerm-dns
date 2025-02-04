@@ -9,7 +9,21 @@ variable "zone" {
     name                  = string
     resource_group_name   = string
     tags                  = optional(map(string), null)
+    management_lock       = optional(object({
+      enabled               = optional(bool, true)
+      name                  = optional(string, null)
+      lock_level            = optional(string, "CanNotDelete")
+      notes                 = optional(string, null)
+    }), { enabled = false })
   })
+  validation {
+    condition     = var.zone.management_lock.lock_level == null ? true : contains(["CanNotDelete", "ReadOnly"], var.zone.management_lock.lock_level)
+    error_message = <<-EOF
+      Variable attribute 'var.zone.management_lock.lock_level' has an invalid value: ${var.zone.management_lock.lock_level == null ? 0 : var.zone.management_lock.lock_level}
+      Value must be one of:
+        "CanNotDelete", "ReadOnly" or null
+    EOF
+  }
 }
 
 variable "recordset_a" {

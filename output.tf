@@ -64,8 +64,8 @@ output "azurerm_dns_mx_record" {
 
 output "azurerm_dns_ns_record" {
   description = "output of all exported NS record sets' attribute values"
-  value       = azurerm_dns_ns_record.recordset
-  depends_on  = [ azurerm_dns_ns_record.recordset ]
+  value       = [ data.azurerm_dns_ns_record.recordset, azurerm_dns_ns_record.recordset ]
+  depends_on  = [ data.azurerm_dns_ns_record.recordset, azurerm_dns_ns_record.recordset ]
 }
 
 output "azurerm_dns_soa_record" {
@@ -84,4 +84,10 @@ output "azurerm_dns_txt_record" {
   description = "output of all exported TXT record sets' attribute values"
   value       = azurerm_dns_txt_record.recordset
   depends_on  = [ azurerm_dns_txt_record.recordset ]
+}
+
+output "azurerm_management_lock" {
+  description = "output of all exported management lock attribute values"
+  value       = azurerm_management_lock.management_lock
+  depends_on  = [ azurerm_management_lock.management_lock ]
 }

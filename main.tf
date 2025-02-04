@@ -154,3 +154,24 @@ resource "azurerm_dns_txt_record" "recordset" {
   tags                = each.value.tags
   depends_on          = [ azurerm_dns_zone.zone ]
 }
+
+######################### DNS Zone Management Lock ################################################
+
+resource "azurerm_management_lock" "management_lock" {
+  count               = var.zone.management_lock.enabled ? 1 : 0
+  name                = var.zone.management_lock.name == null ? "${var.zone.name}-${var.zone.management_lock.lock_level}" : var.zone.management_lock.name
+  scope               = azurerm_dns_zone.zone.id
+  lock_level          = var.zone.management_lock.lock_level
+  notes               = var.zone.management_lock.notes
+  depends_on          = [ 
+    azurerm_dns_zone.zone,
+    azurerm_dns_a_record.recordset,
+    azurerm_dns_aaaa_record.recordset,
+    azurerm_dns_caa_record.recordset,
+    azurerm_dns_cname_record.recordset,
+    azurerm_dns_mx_record.recordset,
+    azurerm_dns_ns_record.recordset,
+    azurerm_dns_srv_record.recordset,
+    azurerm_dns_txt_record.recordset,
+  ]
+}

@@ -3,7 +3,8 @@
 ### Description
 
 This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards. The module only manages forward lookup zones. Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
-  
+The module is able to create a management lock on zone resource level in addition to the zone and record set resources themselves. The managment lock resource has a dependency to all other resources to initially allow the creation of the zone and all record sets before applying the lock. Once applied, the lock also affects Terraform itself even if authenticating with a Service Principal. Therefore it is best practice to remove the lock together with any further change and add the lock again afterwards.  
+
 ### Requirements
 
 | Name | Version |
@@ -24,12 +25,13 @@ This module is intended to create public DNS zones and resource record sets in A
 | [azurerm_dns_ns_record.recordset](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_ns_record) | resource |
 | [azurerm_dns_srv_record.recordset](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_srv_record) | resource |
 | [azurerm_dns_txt_record.recordset](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_txt_record) | resource |
+| [azurerm_management_lock.management_lock](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) | resource |
 
 ### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for DNS zone's resource attributes | <pre>type        = object({<br>  name                  = string<br>  resource_group_name   = string<br>  tags                  = optional(map(string), null)<br>})<br></pre> | none | yes |
+| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for DNS zone's resource attributes | <pre>type        = object({<br>  name                  = string<br>  resource_group_name   = string<br>  tags                  = optional(map(string), null)<br>  management_lock       = optional(object({<br>    enabled               = optional(bool, true)<br>    name                  = optional(string, null)<br>    lock_level            = optional(string, "CanNotDelete")<br>    notes                 = optional(string, null)<br>  }), { enabled = false })<br>})<br></pre> | none | yes |
 | <a name="input_recordset_a"></a> [recordset_a](#input\_recordset\_a) | 'var.recordset_a' is the main variable for DNS zone's record set resources of record type 'A' | <pre>type         = map(object({<br>  name                = string<br>  records             = optional(list(string))<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |
 | <a name="input_recordset_aaaa"></a> [recordset_aaaa](#input\_recordset\_aaaa) | 'var.recordset_aaaa' is the main variable for DNS zone's record set resources of record type 'AAAA' | <pre>type        = map(object({<br>  name                = string<br>  records             = optional(list(string))<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |
 | <a name="input_recordset_caa"></a> [recordset_caa](#input\_recordset\_caa) | 'var.recordset_caa' is the main variable for DNS zone's record set resources of record type 'CAA' | <pre>type        = map(object({<br>  name                = string<br>  record              = optional(list(string))<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |
@@ -92,15 +94,16 @@ module "azurerm_dns" {
 | <a name="output_azurerm_dns_soa_record"></a> [azurerm\_dns\_soa\_record](#output\_azurerm\_dns\_soa\_record) | list of all exported attributes values from the DNS SOA record set data sources  |
 | <a name="output_azurerm_dns_srv_record"></a> [azurerm\_dns\_srv\_record](#output\_azurerm\_dns\_srv\_record) | list of all exported attributes values from the DNS SRV record set resources  |
 | <a name="output_azurerm_dns_txt_record"></a> [azurerm\_dns\_txt\_record](#output\_azurerm\_dns\_txt\_record) | list of all exported attributes values from the DNS TXT record set resources  |
+| <a name="output_azurerm_management_lock"></a> [azurerm\_management\_lock](#output\_azurerm\_management\_lock) | list of all exported attributes values from the DNS zone's management lock resources  |
   
 <details>
 <summary><b>Using the outputs in the root module</b></summary>
 
 ######
-Output - IDs of all groups using 'azurerm_dns_zone' output:
+Output - IDs of all zones using 'azurerm_dns_zone' output:
 
 ```
-output "azurerm_dns_zone_id_all_groups" {
+output "azurerm_dns_zone_id_all_zones" {
   value = toset([
     for object_id in module.azurerm_dns : object_id.azurerm_dns_zone_id
   ])
@@ -110,16 +113,25 @@ output "azurerm_dns_zone_id_all_groups" {
 ...or directly via 'azurerm_dns_zone_id' output:
 
 ```
-output "azurerm_dns_zone_id_all_groups" {
+output "azurerm_dns_zone_id_all_zones" {
   value = values(module.azurerm_dns).*.azurerm_dns_zone_id
 }
 ```
 
-Output - ID of a single specified group using 'azurerm_dns_zone_id' output:
+Output - ID of a single specified zone using 'azurerm_dns_zone_id' output:
 
 ```
-output "azurerm_dns_zone_id_group_1" {
+output "azurerm_dns_zone_id_zone_1" {
   value = module.azurerm_dns["<i>&lt;Terraform-Resource-Name&gt;</i>"].azurerm_dns_zone_id
 }
 ```
+  
+Output - Details of all nameserver record sets using 'azurerm_dns_ns_record' output:
+
+```
+output "azurerm_dns_ns_record_all_recordsets" {
+    value = flatten(values(module.azurerm_dns).*.azurerm_dns_ns_record)
+}
+```
+NOTE: use the 'flatten' function to remove unnecessary nestings caused by the module's output...
 </details>
