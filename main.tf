@@ -95,7 +95,7 @@ resource "azurerm_dns_mx_record" "recordset" {
 ######################### DNS Record Sets: NS #####################################################
 
 resource "azurerm_dns_ns_record" "recordset" {
-  for_each            = var.recordset_ns
+  for_each            = { for k, v in var.recordset_ns : k => v if (v.name != "@") }
   name                = each.value.name
   zone_name           = azurerm_dns_zone.zone.name
   resource_group_name = azurerm_dns_zone.zone.resource_group_name
@@ -103,17 +103,6 @@ resource "azurerm_dns_ns_record" "recordset" {
   ttl                 = each.value.ttl
   tags                = each.value.tags
   depends_on          = [ azurerm_dns_zone.zone ]
-  lifecycle {
-    precondition {
-      # DO NOT modify the root name server record set!
-      condition         = each.value.name != "@"
-      error_message     = <<-EOF
-        The specified value for attribute 'var.recordset_ns.name' represents the root record.
-        This record is managed by Microsoft. Therefore, creating/changing the root record set
-        is not allowed for this type of record.
-      EOF
-    }
-  }
 }
 
 ######################### DNS Record Sets: SRV ####################################################

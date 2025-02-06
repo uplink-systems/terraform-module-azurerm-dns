@@ -2,7 +2,9 @@
 
 ### Description
 
-This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards. The module only manages forward lookup zones. Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
+This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards.  
+Only forward lookup zones can be managed.  Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
+The zone's name server root record set is managed by Microsoft and cannot be modified. To avoid conflicts with these record sets the module skips processing *azurerm_dns_ns_record* resources that have "@" as their name attribute's value.  
 The module is able to create a management lock on zone resource level in addition to the zone and record set resources themselves. The managment lock resource has a dependency to all other resources to initially allow the creation of the zone and all record sets before applying the lock. Once applied, the lock also affects Terraform itself even if authenticating with a Service Principal. Therefore it is best practice to remove the lock together with any further change and add the lock again afterwards.  
 
 ### Requirements
