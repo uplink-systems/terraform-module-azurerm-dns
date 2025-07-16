@@ -12,7 +12,7 @@ variable "zone" {
     management_lock       = optional(object({
       enabled               = optional(bool, true)
       name                  = optional(string, null)
-      lock_level            = optional(string, "CanNotDelete")
+      lock_level            = optional(string, null)
       notes                 = optional(string, null)
     }), { enabled = false })
   })

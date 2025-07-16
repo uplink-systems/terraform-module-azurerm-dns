@@ -2,11 +2,20 @@
 
 ### Description
 
-This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards.  
-Only forward lookup zones can be managed.  Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
-The zone's name server root record set is managed by Microsoft and cannot be modified. To avoid conflicts with these record sets the module skips processing *azurerm_dns_ns_record* resources that have "@" as their name attribute's value.  
+This module is intended to create public DNS zones and resource record sets in Azure RM following my business needs and standards. The module only manages forward lookup zones. Reverse lookup zones incl. PTR record sets are currently not in scope of this module.  
 The module is able to create a management lock on zone resource level in addition to the zone and record set resources themselves. The managment lock resource has a dependency to all other resources to initially allow the creation of the zone and all record sets before applying the lock. Once applied, the lock also affects Terraform itself even if authenticating with a Service Principal. Therefore it is best practice to remove the lock together with any further change and add the lock again afterwards.  
 
+#### Tasks & ToDos
+
+- [x] Create and manage a public DNS zone
+- [x] Create and manage public DNS recordsets for all available record types in the DNS zone
+- [ ] \(Optional) Apply input variable validation rules if necessary to match available resource values
+- [ ] \(Optional) Apply input variable validation rules if necessary to match business standards
+- [x] Create and manage modules outputs for DNS zones
+- [x] Create and manage modules outputs for DNS recordsets
+- [x] Document module with README.md
+- [ ] \(Optional) Review code regularly for possible improvements and updates
+  
 ### Requirements
 
 | Name | Version |
@@ -33,7 +42,7 @@ The module is able to create a management lock on zone resource level in additio
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for DNS zone's resource attributes | <pre>type        = object({<br>  name                  = string<br>  resource_group_name   = string<br>  tags                  = optional(map(string), null)<br>  management_lock       = optional(object({<br>    enabled               = optional(bool, true)<br>    name                  = optional(string, null)<br>    lock_level            = optional(string, "CanNotDelete")<br>    notes                 = optional(string, null)<br>  }), { enabled = false })<br>})<br></pre> | none | yes |
+| <a name="input_zone"></a> [zone](#input\_zone) | 'var.zone' is the main variable for DNS zone's resource attributes | <pre>type        = object({<br>  name                  = string<br>  resource_group_name   = string<br>  tags                  = optional(map(string), null)<br>  management_lock       = optional(object({<br>    enabled               = optional(bool, true)<br>    name                  = optional(string, null)<br>    lock_level            = optional(string, null)<br>    notes                 = optional(string, null)<br>  }), { enabled = false })<br>})<br></pre> | none | yes |
 | <a name="input_recordset_a"></a> [recordset_a](#input\_recordset\_a) | 'var.recordset_a' is the main variable for DNS zone's record set resources of record type 'A' | <pre>type         = map(object({<br>  name                = string<br>  records             = optional(list(string))<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |
 | <a name="input_recordset_aaaa"></a> [recordset_aaaa](#input\_recordset\_aaaa) | 'var.recordset_aaaa' is the main variable for DNS zone's record set resources of record type 'AAAA' | <pre>type        = map(object({<br>  name                = string<br>  records             = optional(list(string))<br>  target_resource_id  = optional(string)<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |
 | <a name="input_recordset_caa"></a> [recordset_caa](#input\_recordset\_caa) | 'var.recordset_caa' is the main variable for DNS zone's record set resources of record type 'CAA' | <pre>type        = map(object({<br>  name                = string<br>  record              = optional(list(string))<br>  tags                = optional(map(string), null)<br>  ttl                 = optional(number, 3600)<br>}))<br></pre> | { } | no |

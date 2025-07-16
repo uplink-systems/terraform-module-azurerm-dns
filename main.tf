@@ -148,9 +148,9 @@ resource "azurerm_dns_txt_record" "recordset" {
 
 resource "azurerm_management_lock" "lock" {
   count               = var.zone.management_lock.enabled ? 1 : 0
-  name                = var.zone.management_lock.name == null ? "${var.zone.name}-${var.zone.management_lock.lock_level}" : var.zone.management_lock.name
+  name                = var.zone.management_lock.name == null ? "${var.zone.name}-${local.zone.management_lock.lock_level}" : var.zone.management_lock.name
   scope               = azurerm_dns_zone.zone.id
-  lock_level          = var.zone.management_lock.lock_level
+  lock_level          = local.zone.management_lock.lock_level
   notes               = var.zone.management_lock.notes
   depends_on          = [ 
     azurerm_dns_zone.zone,
